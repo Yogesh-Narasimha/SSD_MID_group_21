@@ -4,10 +4,8 @@ import { api, setAuthToken, API_URL } from '../services/api';
 import { io } from 'socket.io-client';
 
 export default function InstructorView({ user, onLogout }) {
-  // ensure auth token used by api
   setAuthToken(user.token);
 
-  // state
   const [activeLecture, setActiveLecture] = useState(null);
   const [finishedLectures, setFinishedLectures] = useState([]);
   const [questions, setQuestions] = useState([]);
@@ -17,7 +15,7 @@ export default function InstructorView({ user, onLogout }) {
   const [viewingFinished, setViewingFinished] = useState(null);
   const socketRef = useRef(null);
 
-  // Fetch lectures (and listen for lecture updates)
+  // Fetch lectures (listen for lecture updates)
   useEffect(() => {
     async function fetchLectures() {
       try {
@@ -35,7 +33,41 @@ export default function InstructorView({ user, onLogout }) {
     return () => socket.disconnect();
   }, []);
 
-  // Minimal UI placeholder for now
+  // Join active lecture and handle question events
+  useEffect(() => {
+    if (!activeLecture) return;
+    const socket = io(API_URL);
+    socketRef.current = socket;
+
+    socket.emit('join', { lectureId: activeLecture.lectureId });
+
+    socket.on('new-question', (q) =>
+      setQuestions((prev) => (prev.find((x) => x._id === q._id) ? prev : [...prev, q]))
+    );
+    socket.on('update-question', (q) =>
+      setQuestions((prev) => prev.map((x) => (x._id === q._id ? q : x)))
+    );
+    socket.on('delete-question', ({ id }) =>
+      setQuestions((prev) => prev.filter((x) => x._id !== id))
+    );
+    socket.on('clarification', (q) =>
+      setQuestions((prev) => prev.map((x) => (x._id === q._id ? q : x)))
+    );
+    socket.on('cleared', () => setQuestions([]));
+
+    // initial fetch of questions for this lecture
+    (async function fetchQs() {
+      try {
+        const res = await api.get('/api/questions?lectureId=' + encodeURIComponent(activeLecture.lectureId));
+        setQuestions(res.data || []);
+      } catch (err) {
+        console.error('Failed to fetch questions', err);
+      }
+    })();
+
+    return () => socket.disconnect();
+  }, [activeLecture]);
+
   return (
     <div className="p-6">
       <header className="flex justify-between items-center mb-6">
@@ -49,16 +81,8 @@ export default function InstructorView({ user, onLogout }) {
       </section>
 
       <section>
-        <h2 className="font-semibold">Finished Lectures</h2>
-        {finishedLectures.length === 0 ? (
-          <p>No finished lectures yet.</p>
-        ) : (
-          <ul>
-            {finishedLectures.map((f, i) => (
-              <li key={i}>{f.lectureId}</li>
-            ))}
-          </ul>
-        )}
+        <h2 className="font-semibold">Questions (live)</h2>
+        <p>{questions.length} question(s) loaded</p>
       </section>
     </div>
   );
