@@ -79,6 +79,14 @@ npm install
 npm start              # Starts the React app on http://localhost:3000
 ```
 
+### Note :
+
+open the "localhost:3000" in two different browsers for Role based access. For example:
+- chrome and firefox
+- chrome and ms edge
+
+chrome and chrome should not be used in this case.
+
 ---
 
 ## Implementation Details
@@ -100,36 +108,25 @@ npm start              # Starts the React app on http://localhost:3000
 
 ## Design Decisions
 
-- **MERN Stack:** Chosen for rapid development, scalability, and a unified JavaScript codebase.
+- **MERN Stack:** Chosen for react and a unified JavaScript codebase.
 - **Socket.io:** Used for real-time features (Q&A, live updates) to enhance interactivity.
 - **Role-based Access:** Different UI and permissions for Instructors, Students, and TAs.
-- **Separation of Concerns:** Clear separation between API logic, business logic, and data models.
+- **Separation of Concerns:** Clear separation between API logic, roles logic, and data models.
 - **.env Configuration:** Sensitive data and environment-specific settings are managed via environment variables.
 
 ---
 
-## Environment Variables
+## Solution Diagram
 
-See `backend/.env.example` for required variables (e.g., `MONGO_URI`, `JWT_SECRET`).
-
----
-
-## Running Tests
-
-Add your test instructions here if available.
-
----
+![Solution Diagram](Solution_diagram.png)
 
 ## Authors
 
-- Group 21
+- Chandrakanth Reddy
+- Piyush Aggarwal
+- Madha Manish
+- Yogesh Rachaputi
+- Hritik Ranjan
 
 ---
 
-## License
-
-Specify your license here.
-# SSD_MID_group_21
-
-Vidya vichar 
-checking in -chandu
