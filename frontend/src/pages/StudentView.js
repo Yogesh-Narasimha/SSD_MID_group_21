@@ -44,3 +44,35 @@ useEffect(() => {
   socket.on('lectures-updated', fetchLectures);
   return () => socket.disconnect();
 }, []);
+useEffect(() => {
+  if (!selectedLecture) return;
+  socketRef.current = io(API_URL);
+  socketRef.current.emit('join', { lectureId: selectedLecture });
+  socketRef.current.on('new-question', (q) =>
+    setQuestions((prev) => (prev.find((x) => x._id === q._id) ? prev : [...prev, q]))
+  );
+  socketRef.current.on('update-question', (q) =>
+    setQuestions((prev) => prev.map((x) => (x._id === q._id ? q : x)))
+  );
+  socketRef.current.on('delete-question', ({ id }) =>
+    setQuestions((prev) => prev.filter((x) => x._id !== id))
+  );
+  socketRef.current.on('clarification', (q) =>
+    setQuestions((prev) => prev.map((x) => (x._id === q._id ? q : x)))
+  );
+  socketRef.current.on('cleared', () => setQuestions([]));
+
+  (async function loadQs() {
+    try {
+      const res = await api.get('/api/questions?lectureId=' + encodeURIComponent(selectedLecture));
+      setQuestions(res.data || []);
+    } catch (err) {
+      console.error('Failed to load questions', err);
+    }
+  })();
+
+  return () => {
+    if (socketRef.current) socketRef.current.disconnect();
+  };
+}, [selectedLecture]);
+
