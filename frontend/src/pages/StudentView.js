@@ -75,4 +75,38 @@ useEffect(() => {
     if (socketRef.current) socketRef.current.disconnect();
   };
 }, [selectedLecture]);
+async function postQuestion() {
+  if (!text.trim()) return;
+  try {
+    await api.post('/api/questions', { lectureId: selectedLecture, text });
+    setText('');
+  } catch (err) {
+    const msg = err.response?.data?.message || 'Failed to post question';
+    alert(msg);
+  }
+}
+
+function exitSession() {
+  if (socketRef.current) socketRef.current.disconnect();
+  setSelectedLecture(null);
+  setQuestions([]);
+  setShowExitConfirm(false);
+}
+
+const displayedQuestions = useMemo(() => {
+  if (!filter) return questions;
+  return questions.filter((q) => q.status === filter);
+}, [questions, filter]);
+
+function statusBadge(status) {
+  switch (status) {
+    case 'answered':
+      return 'bg-green-100 text-green-700';
+    case 'important':
+      return 'bg-yellow-100 text-yellow-700';
+    case 'unanswered':
+    default:
+      return 'bg-red-100 text-red-700';
+  }
+}
 
