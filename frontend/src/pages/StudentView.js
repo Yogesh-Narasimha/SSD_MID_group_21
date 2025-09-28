@@ -174,6 +174,58 @@ function statusBadge(status) {
     Ask
   </button>
 </div>
+{/* Question list */}
+<div className="grid gap-4">
+  {displayedQuestions.map((q) => (
+    <div
+      key={q._id}
+      className="bg-white/40 backdrop-blur-md p-5 rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition"
+    >
+      <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
+        <span className="font-semibold">{q.author}</span>
+        <span>{new Date(q.timestamp).toLocaleString()}</span>
+      </div>
+      <p className="text-lg font-medium mb-2">{q.text}</p>
+      <span
+        className={`inline-block px-3 py-1 text-xs rounded-full ${statusBadge(
+          q.status
+        )}`}
+      >
+        {q.status}
+      </span>
+      {q.clarification && (
+        <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+          <strong className="text-emerald-700">TA Clarification:</strong>{' '}
+          {q.clarification}
+        </div>
+      )}
+    </div>
+  ))}
+</div>
+
+{/* Exit confirmation popup */}
+{showExitConfirm && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div className="bg-white p-6 rounded-2xl shadow-xl">
+      <p className="mb-4">Are you sure you want to exit the session?</p>
+      <div className="flex gap-3">
+        <button
+          className="px-4 py-2 bg-red-500 text-white rounded-xl"
+          onClick={exitSession}
+        >
+          Yes, Exit
+        </button>
+        <button
+          className="px-4 py-2 bg-gray-300 rounded-xl"
+          onClick={() => setShowExitConfirm(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
 
 
