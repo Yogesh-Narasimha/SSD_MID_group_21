@@ -105,6 +105,41 @@ export default function InstructorView({ user, onLogout }) {
     }
   }
 
+  // question management
+  async function updateQuestion(id, updateObj) {
+    try {
+      await api.patch('/api/questions/' + id, updateObj);
+    } catch {
+      alert('Failed to update');
+    }
+  }
+
+  async function deleteQuestion(id) {
+    try {
+      await api.delete('/api/questions/' + id);
+    } catch {
+      alert('Failed to delete');
+    }
+  }
+
+  const displayedQuestions = !filter ? questions : questions.filter((q) => q.status === filter);
+
+  const displayedFinishedQuestions = !finishedFilter
+    ? viewingFinished?.questions || []
+    : (viewingFinished?.questions || []).filter((q) => q.status === finishedFilter);
+
+  function statusBadge(status) {
+    switch (status) {
+      case 'answered':
+        return 'bg-green-100 text-green-700';
+      case 'important':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'unanswered':
+      default:
+        return 'bg-red-100 text-red-700';
+    }
+  }
+
   return (
     <div className="p-6">
       <header className="flex justify-between items-center mb-6">
@@ -128,17 +163,11 @@ export default function InstructorView({ user, onLogout }) {
       <section className="mb-4">
         <h2 className="font-semibold">Active Lecture</h2>
         <div>{activeLecture ? activeLecture.lectureId : 'No active lecture'}</div>
-        {activeLecture && (
-          <div className="mt-2 flex gap-2">
-            <button onClick={endLecture} className="px-3 py-1 rounded bg-red-500 text-white">End</button>
-            <button onClick={clearLecture} className="px-3 py-1 rounded bg-yellow-400 text-white">Clear Qs</button>
-          </div>
-        )}
       </section>
 
       <section>
         <h2 className="font-semibold">Questions (live)</h2>
-        <p>{questions.length} question(s) loaded</p>
+        <div>{displayedQuestions.length} question(s) — filter: {filter || 'all'}</div>
       </section>
     </div>
   );
