@@ -53,15 +53,6 @@ async function endLecture(req, res) {
   }
 }
 
-// Active lectures (students use this)
-async function getActiveLectures(req, res) {
-  try {
-    const active = await Lecture.find({ active: true }).sort({ startedAt: -1 });
-    res.json(active);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
 
 
 // My lectures (instructor: active + finished with questions)
@@ -89,3 +80,13 @@ module.exports = {
   getActiveLectures,
   getMyLectures,
 };
+
+// Active lectures (students use this)
+async function getActiveLectures(req, res) {
+  try {
+    const active = await Lecture.find({ active: true }).sort({ startedAt: -1 });
+    res.json(active);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
