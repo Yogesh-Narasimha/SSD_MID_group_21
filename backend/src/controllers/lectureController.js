@@ -52,3 +52,40 @@ async function endLecture(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+
+// Active lectures (students use this)
+async function getActiveLectures(req, res) {
+  try {
+    const active = await Lecture.find({ active: true }).sort({ startedAt: -1 });
+    res.json(active);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+
+// My lectures (instructor: active + finished with questions)
+async function getMyLectures(req, res) {
+  try {
+    const active = await Lecture.findOne({ instructor: req.user.username, active: true });
+    const finished = await Lecture.find({ instructor: req.user.username, active: false }).sort({ endedAt: -1 });
+
+    const finishedWithQs = await Promise.all(
+      finished.map(async (lec) => {
+        const qs = await Question.find({ lectureId: lec.lectureId }).sort({ timestamp: 1 });
+        return { ...lec.toObject(), questions: qs };
+      })
+    );
+
+    res.json({ active, finished: finishedWithQs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+module.exports = {
+  startLecture,
+  endLecture,
+  getActiveLectures,
+  getMyLectures,
+};
