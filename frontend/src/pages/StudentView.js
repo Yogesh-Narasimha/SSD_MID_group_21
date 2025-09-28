@@ -130,5 +130,20 @@ function statusBadge(status) {
     </div>
   </div>
 )}
+{/* Lecture Session */}
+{selectedLecture && (
+  <div className="p-6">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-xl font-bold">Lecture: {selectedLecture}</h2>
+      <button
+        className="px-4 py-2 bg-red-500 text-white rounded-xl shadow-md hover:scale-105 transition"
+        onClick={() => setShowExitConfirm(true)}
+      >
+        Exit Session
+      </button>
+    </div>
+  </div>
+)}
+
 
 
