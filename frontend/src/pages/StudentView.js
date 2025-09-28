@@ -233,4 +233,3 @@ export default function StudentView({ user, onLogout }) {
     </div>
   );
 }
-a
