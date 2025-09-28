@@ -1,0 +1,3 @@
+const mongoose = require('mongoose'); const dotenv = require('dotenv'); dotenv.config();
+const User = require('./models/User'); const bcrypt = require('bcryptjs');
+async function seed(){ await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/vidyavichar'); await User.deleteMany({}); const make = async (username,password,role)=>{ const salt = await bcrypt.genSalt(10); const passwordHash = await bcrypt.hash(password,salt); return new User({ username, passwordHash, role }).save(); }; await make('teacher1','teachpass','teacher'); await make('ta1','tapass','ta'); await make('student1','studpass','student'); console.log('seeded users'); process.exit(0); } seed().catch(e=>{ console.error(e); process.exit(1); });

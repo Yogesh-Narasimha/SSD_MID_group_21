@@ -88,3 +88,56 @@ exports.updateQuestion = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+exports.deleteQuestion = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const q = await Question.findByIdAndDelete(id);
+
+    const io = getIO();
+    if (io && q) io.to(q.lectureId).emit('delete-question', { id });
+
+    res.json({ message: 'Deleted' });
+  } catch (err) {
+    console.error('Error deleting question:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.clearLecture = async (req, res) => {
+  try {
+    const { lectureId } = req.query;
+    if (!lectureId) {
+      return res.status(400).json({ message: 'lectureId required' });
+    }
+
+    await Question.deleteMany({ lectureId });
+
+    const io = getIO();
+    if (io) io.to(lectureId).emit('cleared');
+
+    res.json({ message: 'Cleared' });
+  } catch (err) {
+    console.error('Error clearing lecture:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.addClarification = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { clarification } = req.body;
+
+    const q = await Question.findByIdAndUpdate(id, { clarification }, { new: true });
+    if (!q) return res.status(404).json({ message: 'Not found' });
+
+    const io = getIO();
+    if (io) io.to(q.lectureId).emit('clarification', q);
+
+    res.json(q);
+  } catch (err) {
+    console.error('Error adding clarification:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
