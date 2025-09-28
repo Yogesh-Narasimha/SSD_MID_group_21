@@ -144,6 +144,36 @@ function statusBadge(status) {
     </div>
   </div>
 )}
+{/* Filter buttons */}
+<div className="mb-4 flex gap-2 flex-wrap">
+  {['', 'unanswered', 'important', 'answered'].map((f) => (
+    <button
+      key={f || 'all'}
+      className={`px-4 py-2 rounded-xl ${
+        filter === f ? 'bg-indigo-500 text-white' : 'bg-white shadow'
+      } hover:scale-105 transition`}
+      onClick={() => setFilter(f)}
+    >
+      {f === '' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+    </button>
+  ))}
+</div>
+
+{/* Question form */}
+<div className="mb-6 flex">
+  <input
+    className="flex-grow p-3 rounded-l-xl border focus:ring-2 focus:ring-indigo-400"
+    placeholder="Type your question..."
+    value={text}
+    onChange={(e) => setText(e.target.value)}
+  />
+  <button
+    className="px-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-r-xl shadow-md hover:scale-105 transition"
+    onClick={postQuestion}
+  >
+    Ask
+  </button>
+</div>
 
 
 
