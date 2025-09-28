@@ -1,4 +1,3 @@
-// src/pages/InstructorView.js
 import React, { useEffect, useState, useRef } from 'react';
 import { api, setAuthToken, API_URL } from '../services/api';
 import { io } from 'socket.io-client';
@@ -238,7 +237,7 @@ export default function InstructorView({ user, onLogout }) {
                     </button>
                     <button
                       className="px-3 py-1 rounded-lg bg-yellow-500 text-white shadow hover:scale-105"
-                      onClick={() => updateQuestion(q._1d, { status: 'important' })}
+                      onClick={() => updateQuestion(q._id, { status: 'important' })}
                     >
                       Mark Important
                     </button>
