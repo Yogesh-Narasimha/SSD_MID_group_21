@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
+const authRoutes = require('./routes/auth');
+const questionRoutes = require('./routes/questions');
+const lectureRoutes = require('./routes/lecture');
 const { initSocket } = require('./socket');
 
 dotenv.config();
@@ -17,6 +20,10 @@ app.use(cors({
   credentials: true,               // allow cookies
 }));
 
+// Routes
+app.use('/auth', authRoutes);
+app.use('/api/questions', questionRoutes);
+app.use('/api/lecture', lectureRoutes);
 
 // Root check
 app.get('/', (req, res) => {
