@@ -30,3 +30,17 @@ export default function StudentView({ user, onLogout }) {
     </div>
   );
 }
+useEffect(() => {
+  async function fetchLectures() {
+    try {
+      const res = await api.get('/api/lecture/active');
+      setLectures(res.data || []);
+    } catch (err) {
+      console.error('Error fetching lectures', err);
+    }
+  }
+  fetchLectures();
+  const socket = io(API_URL);
+  socket.on('lectures-updated', fetchLectures);
+  return () => socket.disconnect();
+}, []);
