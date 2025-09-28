@@ -15,7 +15,6 @@ export default function InstructorView({ user, onLogout }) {
   const [viewingFinished, setViewingFinished] = useState(null);
   const socketRef = useRef(null);
 
-  // Fetch lectures (listen for lecture updates)
   useEffect(() => {
     async function fetchLectures() {
       try {
@@ -33,7 +32,6 @@ export default function InstructorView({ user, onLogout }) {
     return () => socket.disconnect();
   }, []);
 
-  // Join active lecture and handle question events
   useEffect(() => {
     if (!activeLecture) return;
     const socket = io(API_URL);
@@ -55,7 +53,6 @@ export default function InstructorView({ user, onLogout }) {
     );
     socket.on('cleared', () => setQuestions([]));
 
-    // initial fetch of questions for this lecture
     (async function fetchQs() {
       try {
         const res = await api.get('/api/questions?lectureId=' + encodeURIComponent(activeLecture.lectureId));
@@ -68,6 +65,46 @@ export default function InstructorView({ user, onLogout }) {
     return () => socket.disconnect();
   }, [activeLecture]);
 
+  // lecture lifecycle
+  async function startLecture() {
+    if (!lectureInput.trim()) return alert('Enter lectureId');
+    try {
+      if (activeLecture) {
+        await api.post('/api/lecture/end', { lectureId: activeLecture.lectureId });
+        setFinishedLectures((prev) => [...prev, { ...activeLecture, questions }]);
+        setActiveLecture(null);
+        setQuestions([]);
+      }
+
+      const res = await api.post('/api/lecture/start', { lectureId: lectureInput.trim() });
+      setActiveLecture(res.data);
+      setQuestions([]);
+      setLectureInput('');
+    } catch {
+      alert('Failed to start lecture');
+    }
+  }
+
+  async function endLecture() {
+    try {
+      await api.post('/api/lecture/end', { lectureId: activeLecture.lectureId });
+      setFinishedLectures((prev) => [...prev, { ...activeLecture, questions }]);
+      setActiveLecture(null);
+      setQuestions([]);
+    } catch {
+      alert('Failed to end lecture');
+    }
+  }
+
+  async function clearLecture() {
+    try {
+      await api.delete('/api/questions?lectureId=' + encodeURIComponent(activeLecture.lectureId));
+      setQuestions([]);
+    } catch {
+      alert('Failed to clear lecture');
+    }
+  }
+
   return (
     <div className="p-6">
       <header className="flex justify-between items-center mb-6">
@@ -76,8 +113,27 @@ export default function InstructorView({ user, onLogout }) {
       </header>
 
       <section className="mb-4">
+        <h2 className="font-semibold">Start New Lecture</h2>
+        <div className="flex gap-2 mt-2">
+          <input
+            placeholder="Lecture ID"
+            value={lectureInput}
+            onChange={(e) => setLectureInput(e.target.value)}
+            className="border p-2 rounded"
+          />
+          <button onClick={startLecture} className="px-3 py-2 rounded bg-blue-500 text-white">Start</button>
+        </div>
+      </section>
+
+      <section className="mb-4">
         <h2 className="font-semibold">Active Lecture</h2>
         <div>{activeLecture ? activeLecture.lectureId : 'No active lecture'}</div>
+        {activeLecture && (
+          <div className="mt-2 flex gap-2">
+            <button onClick={endLecture} className="px-3 py-1 rounded bg-red-500 text-white">End</button>
+            <button onClick={clearLecture} className="px-3 py-1 rounded bg-yellow-400 text-white">Clear Qs</button>
+          </div>
+        )}
       </section>
 
       <section>
