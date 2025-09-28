@@ -109,4 +109,26 @@ function statusBadge(status) {
       return 'bg-red-100 text-red-700';
   }
 }
+{/* Lecture List */}
+{!selectedLecture && (
+  <div className="p-6">
+    <h2 className="text-xl font-semibold mb-4">Available Lectures</h2>
+    {lectures.length === 0 && <p>No active sessions</p>}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {lectures.map((lec) => (
+        <button
+          key={lec._id}
+          className="bg-white/60 backdrop-blur-md p-5 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition"
+          onClick={() => setSelectedLecture(lec.lectureId)}
+        >
+          <h3 className="font-bold">{lec.lectureId}</h3>
+          <p className="text-sm text-gray-600">
+            Started {new Date(lec.startedAt).toLocaleString()}
+          </p>
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+
 
